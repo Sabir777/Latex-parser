@@ -24,6 +24,15 @@ def number(func):
     return wrapper
 
 
+def cdot(func):
+	# Меняю *(звездочку) на \cdot
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        pattern = r'\s*\*\s*'
+        return sub(pattern, ' \\\cdot ', func(*args, **kwargs))
+    return wrapper
+
+
 def index(func):
     # Создаю многосимвольные индексы
     @wraps(func)
@@ -72,7 +81,7 @@ def convert_name(func):
     # После преобразования возвращаю имена
     @wraps(func)
     def wrapper(expr):
-        pattern = r"\\[\w.,]+(?:\{[-\w.,^*+]+\})+|(?:\\[\w.,]+)+|[\w^.,]+"
+        pattern = r"\\[\w.,]+(?:\{[-\w.,^*+()]+\})+|(?:\\[\w.,]+)+|[\w^.,]+"
         old_var = findall(pattern, expr)
         # print(old_var)
         dict_names = {(k * 3): v for k, v in zip(var_names, old_var)}
@@ -88,6 +97,7 @@ def convert_name(func):
 @latex_wrap
 @latex_wrap
 # @number
+@cdot
 @index
 @fake_eq
 @convert_name
