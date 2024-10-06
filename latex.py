@@ -40,16 +40,41 @@ def index(func):
     return wrapper
 
 
+def fake_eq(func):
+    # Добавляю левую часть уравнения
+    # если ее нет;
+    # Если выражение длинное,
+    # то разбиваю его на парные части
+    # обрабатываю их как уравнения
+    # и потом все соединяю вместе
+    # фейковую часть убираю;
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        lst_expr = input().split("=")
+        size = len(lst_expr)
+        if size % 2:
+            lst_expr = ['fake'] + lst_expr
+        res_exprs = []
+        for i in range(0, size, 2):
+            lhs, rhs = lst_expr[i], lst_expr[i + 1]
+            res = func(f'{lhs} = {rhs}')
+            if res.find('fake') != -1:
+                res = res.split("=")[1].lstrip()
+            res_exprs.append(res)
+        return ' = '.join(res_exprs)
+
+    return wrapper
+
 
 def convert_name(func):
 	# Даю временные имена переменным
     # После преобразования возвращаю имена
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(expr):
         pattern = r"\\[\w.,]+(?:\{[\w.,]+\})+|(?:\\[\w.,]+)+|[\w^.,]+"
-        expr = input()
         old_var = findall(pattern, expr)
-        print(old_var)
+        # print(old_var)
         dict_names = {(k * 3): v for k, v in zip(var_names, old_var)}
         for k, v in dict_names.items():
             expr = expr.replace(v, k)
@@ -61,10 +86,13 @@ def convert_name(func):
 
 
 @latex_wrap
-@number
+@latex_wrap
+# @number
 @index
+@fake_eq
 @convert_name
 def convert_to_latex(expr_str):
+    '''Конвертор математических выражений в LaTeX-выражения'''
     # Разбиваем строку на левую и правую часть уравнения
     lhs, rhs = expr_str.split("=")
     # Парсим левую и правую часть
