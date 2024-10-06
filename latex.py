@@ -103,5 +103,7 @@ def convert_to_latex(expr_str):
     # Возвращаем его в виде строки LaTeX с символом умножения '\cdot'
     return latex(equation, mul_symbol=" \\cdot ").replace('\\frac', '\\dfrac')
 
-
-print(convert_to_latex())
+try:
+    print(convert_to_latex())
+except:
+    print("Ошибка в выражении")
