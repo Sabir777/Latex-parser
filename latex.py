@@ -72,7 +72,7 @@ def convert_name(func):
     # После преобразования возвращаю имена
     @wraps(func)
     def wrapper(expr):
-        pattern = r"\\[\w.,]+(?:\{[\w.,]+\})+|(?:\\[\w.,]+)+|[\w^.,]+"
+        pattern = r"\\[\w.,]+(?:\{[-\w.,^*+]+\})+|(?:\\[\w.,]+)+|[\w^.,]+"
         old_var = findall(pattern, expr)
         # print(old_var)
         dict_names = {(k * 3): v for k, v in zip(var_names, old_var)}
