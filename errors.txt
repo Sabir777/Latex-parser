@@ -1,4 +1,1 @@
-Странная ошибка
-
-a*x^2 + b*x + c \geq D^2
-$$bbbbbbbbb = b \cdot x + bbb \cdot ccc + c \geq D^2{}$$
+ошибок нет

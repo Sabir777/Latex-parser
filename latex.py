@@ -1,7 +1,7 @@
 from sympy import symbols, Eq, latex
 from sympy.parsing.sympy_parser import parse_expr
-from re import findall, sub, split
-from string import ascii_lowercase as var_names
+from re import findall, sub, split, escape
+from itertools import permutations
 from functools import wraps
 
 
@@ -106,9 +106,11 @@ def convert_name(func):
         pattern = r"\\[\w.,]+(?:\{[-\w.,^*+()]+\})+|(?:\\[\w.,]+)+|[\w^.,]+"
         old_var = findall(pattern, expr)
         # print(old_var)
-        dict_names = {(k * 3): v for k, v in zip(var_names, old_var)}
+        it_num = permutations('abcdefgh')
+        dict_names = {''.join(k): v for k, v in zip(it_num, old_var)}
         for k, v in dict_names.items():
-            expr = expr.replace(v, k)
+            pattern = r'\b' + escape(v) + r'\b'
+            expr = sub(pattern, k, expr)
         res = func(expr)
         for k, v in dict_names.items():
             res  = res.replace(k, v)
