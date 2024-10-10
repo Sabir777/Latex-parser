@@ -109,8 +109,9 @@ def convert_name(func):
         it_num = permutations('abcdefgh')
         dict_names = {''.join(k): v for k, v in zip(it_num, old_var)}
         for k, v in dict_names.items():
-            pattern = r'\b' + escape(v) + r'\b'
+            pattern = (v[0] != '\\') and r'\b' + escape(v) + r'\b' or escape(v)
             expr = sub(pattern, k, expr)
+        # print(expr)
         res = func(expr)
         for k, v in dict_names.items():
             res  = res.replace(k, v)
