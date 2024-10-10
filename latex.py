@@ -1,6 +1,6 @@
 from sympy import symbols, Eq, latex
 from sympy.parsing.sympy_parser import parse_expr
-from re import findall, sub
+from re import findall, sub, split
 from string import ascii_lowercase as var_names
 from functools import wraps
 
@@ -48,6 +48,28 @@ def index(func):
         return res.replace('__', r'_\_')
     return wrapper
 
+def not_equal(func):
+    # Разбиваю неравенство на части
+    # Обрабатываю каждую часть отдельно
+    # Соединяю обработанные части
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        expression = input()
+        pattern = r'\\approx|\\geq|\\leq|<|>'
+        lst_del = findall(pattern, expression)
+        lst_expr = split(pattern, expression)
+        if not lst_del:
+            return func(expression)
+
+        it_expr = iter(lst_expr)
+        res = func(next(it_expr)).strip()
+        for d in lst_del:
+            res += f' {d} {func(next(it_expr)).strip()}'
+        return res
+
+    return wrapper
+
 
 def fake_eq(func):
     # Добавляю левую часть уравнения
@@ -59,8 +81,8 @@ def fake_eq(func):
     # фейковую часть убираю;
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
-        lst_expr = input().split("=")
+    def wrapper(expr):
+        lst_expr = expr.split("=")
         size = len(lst_expr)
         if size % 2:
             lst_expr = ['fake'] + lst_expr
@@ -99,6 +121,7 @@ def convert_name(func):
 # @number
 @cdot
 @index
+@not_equal
 @fake_eq
 @convert_name
 def convert_to_latex(expr_str):
