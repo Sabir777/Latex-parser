@@ -3,6 +3,7 @@ from sympy.parsing.sympy_parser import parse_expr
 from re import findall, sub, split, escape
 from itertools import permutations
 from functools import wraps
+from string import ascii_lowercase
 
 
 def latex_wrap(func):
@@ -98,35 +99,39 @@ def fake_eq(func):
     return wrapper
 
 
-def convert_name(func):
-	# Даю временные имена переменным
-    # После преобразования возвращаю имена
-    @wraps(func)
-    def wrapper(expr):
-        pattern = r"\\[\w.,]+(?:\{[-\w.,^*+()]+\})+|(?:\\[\w.,]+)+|[\w^.,()]+"
-        old_var = findall(pattern, expr)
-        # print(old_var)
-        it_num = permutations('abcdefgh')
-        dict_names = {''.join(k): v for k, v in zip(it_num, old_var)}
-        for k, v in dict_names.items():
-            pattern = (v[0] != '\\') and r'\b' + escape(v) + r'\b' or escape(v)
-            expr = sub(pattern, k, expr)
-        # print(expr)
-        res = func(expr)
-        for k, v in dict_names.items():
-            res  = res.replace(k, v)
-        return res
-    return wrapper
+def convert_name(first, pattern):
+    def decorator(func):
+        # Даю временные имена переменным
+        # После преобразования возвращаю имена
+        @wraps(func)
+        def wrapper(expr):
+            # итератор имен переменных
+            it_num = permutations(ascii_lowercase[first: first+8])
+            # Заменяю все символы latex на временные переменные
+            old_var = findall(pattern, expr)
+            # print(old_var)
+            dict_names = {''.join(k): v for k, v in zip(it_num, old_var)}
+            for k, v in dict_names.items():
+                pattern2 = (v[0] != '\\') and r'\b' + escape(v) + r'\b' or escape(v)
+                expr = sub(pattern2, k, expr)
+            # print('вывод\n',expr)
+            res = func(expr)
+            for k, v in dict_names.items():
+                res  = res.replace(k, v)
+            return res
+        return wrapper
+    return decorator
 
 
 @latex_wrap
 @latex_wrap
-# @number
+@number
 @cdot
 @index
 @not_equal
 @fake_eq
-@convert_name
+@convert_name(0, r'\\\w+(?:\{.+?\})?')
+@convert_name(1, r'\b[\w^()]+\b')
 def convert_to_latex(expr_str):
     '''Конвертор математических выражений в LaTeX-выражения'''
     # Разбиваем строку на левую и правую часть уравнения
@@ -138,6 +143,7 @@ def convert_to_latex(expr_str):
     equation = Eq(lhs_expr, rhs_expr)
     # Возвращаем его в виде строки LaTeX с символом умножения '\cdot'
     return latex(equation, mul_symbol=" \\cdot ").replace('\\frac', '\\dfrac')
+
 
 try:
     print(convert_to_latex())
