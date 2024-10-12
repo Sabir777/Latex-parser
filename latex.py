@@ -125,13 +125,13 @@ def convert_name(first, pattern):
 
 @latex_wrap
 @latex_wrap
-@number
+# @number
 @cdot
 @index
 @not_equal
 @fake_eq
 @convert_name(0, r'\\\w+(?:\{.+?\})?')
-@convert_name(1, r'\b[\w^()]+\b')
+@convert_name(1, r'\b[\w^().,]+\b')
 def convert_to_latex(expr_str):
     '''Конвертор математических выражений в LaTeX-выражения'''
     # Разбиваем строку на левую и правую часть уравнения
