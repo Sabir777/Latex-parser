@@ -109,12 +109,12 @@ def convert_name(first, pattern):
             it_num = permutations(ascii_lowercase[first: first+8])
             # Заменяю все символы latex на временные переменные
             old_var = findall(pattern, expr)
-            print(old_var)
+            # print(old_var)
             dict_names = {''.join(k): v for k, v in zip(it_num, old_var)}
             for k, v in dict_names.items():
-                pattern2 = (v[0] != '\\') and r'(?<![.,])\b' + escape(v) + r'\b(?![.,])' or escape(v)
+                pattern2 = (v[0] != '\\' and v[-1] != '}') and r'(?<![.,])\b' + escape(v) + r'\b(?![.,])' or escape(v)
                 expr = sub(pattern2, k, expr)
-            print('вывод\n',expr)
+            # print('вывод\n',expr)
             res = func(expr)
             for k, v in dict_names.items():
                 res  = res.replace(k, v)
@@ -130,8 +130,9 @@ def convert_name(first, pattern):
 @index
 @not_equal
 @fake_eq
-@convert_name(0, r'\\\w+(?:\{.+?\})?')
-@convert_name(1, r'\b[\w^().,]+\b')
+@convert_name(0, r'\\\w+(?:\{.+?\})?') # \sqrt{3}
+@convert_name(1, r'\b\w+\{\w+\}') # I_{abcdefgh}
+@convert_name(2, r'\b[\w^().,]+\b') # I^(3)_кз abcdefghbcdefghi
 def convert_to_latex(expr_str):
     '''Конвертор математических выражений в LaTeX-выражения'''
     # Разбиваем строку на левую и правую часть уравнения
