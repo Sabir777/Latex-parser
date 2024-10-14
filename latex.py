@@ -40,9 +40,9 @@ def index(func):
     def wrapper(*args, **kwargs):
         def sub_index(m):
             pattern = (m[1] == '_') and r'_\1{}' or r'^\1{}'
-            return sub(r'([\w()])', pattern, m[2])
+            return sub(r'([-\w()])', pattern, m[2])
 
-        pattern = r'(_)(\w+)'
+        pattern = r'(_)([-\w]+)'
         res = sub(pattern, sub_index, func(*args, **kwargs))
         pattern = r'(\^)((?:[^_\W]|[()])+)'
         res = sub(pattern, sub_index, res)
@@ -125,14 +125,14 @@ def convert_name(first, pattern):
 
 @latex_wrap
 @latex_wrap
-# @number
+# @number # добавить номер формулы справа
 @cdot
 @index
 @not_equal
 @fake_eq
 @convert_name(0, r'\\\w+(?:\{.+?\})?') # \sqrt{3}
 @convert_name(1, r'\b\w+\{\w+\}') # I_{abcdefgh}
-@convert_name(2, r'\b[\w^().,]+\b') # I^(3)_кз abcdefghbcdefghi
+@convert_name(2, r'\b[-\w^().,]+\b') # I^(3)_кз abcdefghbcdefghi
 def convert_to_latex(expr_str):
     '''Конвертор математических выражений в LaTeX-выражения'''
     # Разбиваем строку на левую и правую часть уравнения
