@@ -30,7 +30,7 @@ def cdot(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         pattern = r'\s*\*\s*'
-        return sub(pattern, ' \\\cdot ', func(*args, **kwargs))
+        return sub(pattern, r' \\cdot ', func(*args, **kwargs))
     return wrapper
 
 
